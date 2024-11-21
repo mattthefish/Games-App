@@ -62,9 +62,13 @@ dependencies {
         }
     }
 
-    implementation("io.github.raamcosta.compose-destinations:core:1.8.42-beta")
+    // Koin insert features
+    implementation(libs.koin.insert)
+
+    implementation(libs.raamcosta.navigation)
     implementation(libs.androidx.ui.tooling.preview.android)
     implementation(libs.androidx.material3.android)
+    implementation(libs.androidx.runtime.livedata)
     ksp(libs.ksp.v1842beta)
 
     implementation(libs.androidx.compose.bom.v20230300)

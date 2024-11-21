@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.gamesApp.engine.games.Game
+import com.example.gamesApp.engine.games.GameViewModel
 import com.example.gamesApp.engine.games.GamePreview
 import com.example.gamesApp.ui.destinations.DirectionDestination
 import com.example.gamesApp.ui.theme.HomeTheme
@@ -47,7 +47,7 @@ fun MenuScreen(
 
 @Composable
 fun MenuScreenContent(
-    games: List<Game>,
+    games: List<GameViewModel>,
     onCardClicked: (DirectionDestination) -> Unit
 ){
     Column(
@@ -98,7 +98,7 @@ fun MenuScreenContent(
 
 @Composable
 fun GameCard(
-    game: Game,
+    game: GameViewModel,
     onCardClicked: (DirectionDestination) -> Unit
 ){
     Card(

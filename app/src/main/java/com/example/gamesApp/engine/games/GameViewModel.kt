@@ -1,16 +1,17 @@
 package com.example.gamesApp.engine.games
 
+import androidx.lifecycle.ViewModel
 import com.example.gamesApp.R
 import com.example.gamesApp.ui.destinations.DirectionDestination
 import com.example.gamesApp.ui.destinations.HomeScreenDestination
 
-interface Game {
-    val name: String
-    val imageId: Int
-    val destination: DirectionDestination
+abstract class GameViewModel: ViewModel() {
+    abstract val name: String
+    abstract val imageId: Int
+    abstract val destination: DirectionDestination
 }
 
-class GamePreview() : Game {
+class GamePreview() : GameViewModel() {
     override val name: String = "Tic Tac Toe"
     override val imageId: Int = R.drawable.ic_launcher_foreground
     override val destination: DirectionDestination = HomeScreenDestination

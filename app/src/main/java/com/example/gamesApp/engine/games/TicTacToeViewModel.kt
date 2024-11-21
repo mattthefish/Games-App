@@ -4,7 +4,7 @@ import com.example.gamesApp.R
 import com.example.gamesApp.ui.destinations.TicTacToeScreenDestination
 
 
-class TicTacToe : Game {
+class TicTacToeViewModel : GameViewModel() {
     override val name: String = "Tic Tac Toe"
     override val imageId: Int = R.drawable.ic_menu_board
     override val destination: TicTacToeScreenDestination = TicTacToeScreenDestination

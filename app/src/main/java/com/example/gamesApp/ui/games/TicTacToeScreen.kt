@@ -28,12 +28,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gamesApp.R
-import com.example.gamesApp.engine.games.TicTacToe
-import com.example.gamesApp.engine.games.TicTacToe.*
+import com.example.gamesApp.engine.games.TicTacToeViewModel
+import com.example.gamesApp.engine.games.TicTacToeViewModel.Players
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.delay
@@ -43,7 +43,7 @@ import kotlinx.coroutines.delay
 fun TicTacToeScreen(
     navigator: DestinationsNavigator
 ){
-    val viewModel
+    val viewModel = viewModel<TicTacToeViewModel>()
 
     TicTacToeScreenContent(
         onBackClicked = { navigator.popBackStack() },
@@ -88,7 +88,6 @@ fun TicTacToeScreenContent(
         ) {
             var playerXBoard by remember { mutableStateOf(0b000_000_000) }
             var playerOBoard by remember { mutableStateOf(0b000_000_000) }
-            var currentPlayer by remember { mutableStateOf(Players) }
 
             Column(
                 modifier = Modifier
@@ -109,16 +108,16 @@ fun TicTacToeScreenContent(
                                     .padding(4.dp)
                                     .background(Color.White, shape = RoundedCornerShape(8.dp))
                                     .clickable {
-                                        if (cellValue.isEmpty()) {
-                                            when (currentPlayer) {
-                                                X -> {
-                                                    //place piece and change turn
-                                                }
-                                                O -> {
-                                                    //place piece and change turn
-                                                }
-                                            }
-                                        }
+//                                        if (cellValue.isEmpty()) {
+//                                            when (/*current player*/) {
+//                                                X -> {
+//                                                    //place piece and change turn
+//                                                }
+//                                                O -> {
+//                                                    //place piece and change turn
+//                                                }
+//                                            }
+//                                        }
                                     },
                                 contentAlignment = Alignment.Center
                             ) {
@@ -167,5 +166,8 @@ fun TicTacToeButton(icon: Int){
 )
 @Composable
 fun TicTacToeScreenPreview() {
-    TicTacToeScreenContent(onBackClicked = {})
+    TicTacToeScreenContent(
+        onBackClicked = {},
+        onCellClicked = {}
+    )
 }

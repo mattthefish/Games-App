@@ -1,11 +1,11 @@
 package com.example.gamesApp.ui
 
-import com.example.gamesApp.engine.games.Game
-import com.example.gamesApp.engine.games.TicTacToe
+import com.example.gamesApp.engine.games.GameViewModel
+import com.example.gamesApp.engine.games.TicTacToeViewModel
 
 class MenuScreenViewModel{
-private val gamesList: List<Game> = listOf(
-    TicTacToe(),
+private val gamesList: List<GameViewModel> = listOf(
+    TicTacToeViewModel(),
     //Add more games here
     )
 
