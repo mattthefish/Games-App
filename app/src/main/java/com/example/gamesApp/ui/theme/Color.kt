@@ -1,6 +1,7 @@
 package com.example.gamesApp.ui.theme
 
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
 val Purple80 = Color(0xFFD0BCFF)
@@ -18,6 +19,9 @@ val Black80 = Color(0xFF222222)
 val White = Color(0xFFFFFFFF)
 val White40 = Color(0xFFEEEEEE)
 val White80 = Color(0xFFDDDDDD)
+
+val PlayerOrange = Color(0xFFF17720)
+val PlayerBlue = Color(0xFF0474BA)
 
 val Grey = Color(0xFF808080)
 

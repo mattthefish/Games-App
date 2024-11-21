@@ -34,6 +34,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gamesApp.R
 import com.example.gamesApp.engine.games.TicTacToeViewModel
 import com.example.gamesApp.engine.games.TicTacToeViewModel.Players
+import com.example.gamesApp.ui.theme.PlayerBlue
+import com.example.gamesApp.ui.theme.PlayerOrange
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.delay
@@ -47,19 +49,21 @@ fun TicTacToeScreen(
 
     TicTacToeScreenContent(
         onBackClicked = { navigator.popBackStack() },
-        onCellClicked = { }
+        onCellClicked = { },
+        playerColor = PlayerBlue //TODO dynamic
     )
 }
 
 @Composable
 fun TicTacToeScreenContent(
     onBackClicked: () -> Unit,
+    playerColor: Color,
     onCellClicked: (Players) -> Unit
 ){
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(playerColor)
     ) {
         Box(
             modifier = Modifier
@@ -86,13 +90,10 @@ fun TicTacToeScreenContent(
         Column(
             modifier = Modifier.padding(32.dp)
         ) {
-            var playerXBoard by remember { mutableStateOf(0b000_000_000) }
-            var playerOBoard by remember { mutableStateOf(0b000_000_000) }
 
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black),
+                    .background(MaterialTheme.colorScheme.secondary),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -100,13 +101,16 @@ fun TicTacToeScreenContent(
                     Row {
                         (0 until 3).forEach { col ->
                             val cellIndex = row * 3 + col
-                            val cellValue = "placeholder value"
+                            val cellValue = "X"
 
                             Box(
                                 modifier = Modifier
                                     .size(100.dp)
                                     .padding(4.dp)
-                                    .background(Color.White, shape = RoundedCornerShape(8.dp))
+                                    .background(
+                                        MaterialTheme.colorScheme.background,
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
                                     .clickable {
 //                                        if (cellValue.isEmpty()) {
 //                                            when (/*current player*/) {
@@ -123,6 +127,8 @@ fun TicTacToeScreenContent(
                             ) {
                                 Text(
                                     text = cellValue,
+                                    style = MaterialTheme.typography.displayLarge,
+                                    color = playerColor
                                 )
                             }
                         }
@@ -162,12 +168,25 @@ fun TicTacToeButton(icon: Int){
 //PREVIEWS
 
 @Preview(
-    name = "TicTacToe Screen"
+    name = "TicTacToe Screen Blue"
 )
 @Composable
-fun TicTacToeScreenPreview() {
+fun TicTacToeScreenBluePreview() {
     TicTacToeScreenContent(
         onBackClicked = {},
-        onCellClicked = {}
+        onCellClicked = {},
+        playerColor = PlayerBlue
+    )
+}
+
+@Preview(
+    name = "TicTacToe Screen Orange"
+)
+@Composable
+fun TicTacToeScreenOrangePreview() {
+    TicTacToeScreenContent(
+        onBackClicked = {},
+        onCellClicked = {},
+        playerColor = PlayerOrange
     )
 }

@@ -1,7 +1,10 @@
 package com.example.gamesApp.engine.games
 
+import androidx.compose.ui.graphics.Color
 import com.example.gamesApp.R
 import com.example.gamesApp.ui.destinations.TicTacToeScreenDestination
+import com.example.gamesApp.ui.theme.PlayerBlue
+import com.example.gamesApp.ui.theme.PlayerOrange
 
 
 class TicTacToeViewModel : GameViewModel() {
@@ -16,11 +19,13 @@ class TicTacToeViewModel : GameViewModel() {
 
     class X : Players() {
         val name: String = "X"
+        val color: Color = PlayerBlue
         var board: Int = 0b000000000
     }
 
      class O : Players() {
         val name: String = "O"
+        val color: Color = PlayerOrange
         var board: Int = 0b000000000
     }
 
