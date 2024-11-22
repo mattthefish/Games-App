@@ -1,5 +1,9 @@
 package com.example.gamesApp.ui.games
 
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -7,8 +11,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,22 +54,35 @@ fun TicTacToeScreen(
     val viewModel = viewModel<TicTacToeViewModel>()
 
     TicTacToeScreenContent(
-        onBackClicked = { navigator.popBackStack() },
-        onCellClicked = { },
-        playerColor = PlayerBlue //TODO dynamic
+        onBackClicked = { navigator.navigateUp() },
+        onCellClicked = { }, //TODO dynamic
     )
 }
 
 @Composable
 fun TicTacToeScreenContent(
     onBackClicked: () -> Unit,
-    playerColor: Color,
-    onCellClicked: (Players) -> Unit
+    playerColor: MutableState<Boolean> = remember{ mutableStateOf(true) },
+    onCellClicked: (Players) -> Unit,
 ){
+
+    val animationSpec: AnimationSpec<Float> = tween(durationMillis = 400, easing = FastOutSlowInEasing)
+
+    val startWeight by animateFloatAsState(
+        targetValue = if(playerColor.value) 1f else 0.00001f,
+        animationSpec = animationSpec,
+        label = "Underline start spacer weight"
+    )
+    val endWeight by animateFloatAsState(
+        targetValue = if(playerColor.value) 0.00001f else 1f,
+        animationSpec = animationSpec,
+        label = "Underline end spacer weight"
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(playerColor)
+            .background(if (playerColor.value) PlayerOrange else PlayerBlue)
     ) {
         Box(
             modifier = Modifier
@@ -88,8 +107,45 @@ fun TicTacToeScreenContent(
         }
 
         Column(
-            modifier = Modifier.padding(32.dp)
+            modifier = Modifier.padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Text(
+                    text = "X",
+                    style = MaterialTheme.typography.displayLarge,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+                Text(
+                    text = "O",
+                    style = MaterialTheme.typography.displayLarge,
+                    color = MaterialTheme.colorScheme.secondary
+
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+            ) {
+                Spacer(modifier = Modifier.weight(startWeight))
+                Row(
+                    modifier = Modifier
+                        .padding(top = 8.dp, bottom = 64.dp)
+                        .fillMaxWidth(0.5f)
+                        .height(8.dp)
+                        .background(MaterialTheme.colorScheme.secondary),
+                    content = {}
+                )
+                Spacer(modifier = Modifier.weight(endWeight))
+            }
+
+
 
             Column(
                 modifier = Modifier
@@ -128,7 +184,7 @@ fun TicTacToeScreenContent(
                                 Text(
                                     text = cellValue,
                                     style = MaterialTheme.typography.displayLarge,
-                                    color = playerColor
+                                    color = if (playerColor.value) PlayerOrange else PlayerBlue
                                 )
                             }
                         }
@@ -175,7 +231,7 @@ fun TicTacToeScreenBluePreview() {
     TicTacToeScreenContent(
         onBackClicked = {},
         onCellClicked = {},
-        playerColor = PlayerBlue
+//        playerColor = true
     )
 }
 
@@ -187,6 +243,6 @@ fun TicTacToeScreenOrangePreview() {
     TicTacToeScreenContent(
         onBackClicked = {},
         onCellClicked = {},
-        playerColor = PlayerOrange
+//        playerColor = false
     )
 }
