@@ -13,7 +13,7 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 val Black = Color(0xFF000000)
-val Black40 = Color(0xFF111111)
+val Black40 = Color(0xFF010101)
 val Black80 = Color(0xFF222222)
 
 val White = Color(0xFFFFFFFF)
@@ -33,7 +33,7 @@ val DarkColorScheme = darkColorScheme(
     background = White
 )
 
-val LightColorScheme = darkColorScheme(
+val LightColorScheme = lightColorScheme(
     primary = White,
     onPrimary = Black,
     secondary = White40,
