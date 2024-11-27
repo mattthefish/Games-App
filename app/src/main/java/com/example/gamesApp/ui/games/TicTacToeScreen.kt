@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gamesApp.R
 import com.example.gamesApp.engine.games.TicTacToeViewModel
-import com.example.gamesApp.engine.games.TicTacToeViewModel.Players
 import com.example.gamesApp.ui.theme.PlayerBlue
 import com.example.gamesApp.ui.theme.PlayerOrange
 import com.ramcosta.composedestinations.annotation.Destination
@@ -63,7 +62,7 @@ fun TicTacToeScreen(
 fun TicTacToeScreenContent(
     onBackClicked: () -> Unit,
     playerColor: MutableState<Boolean> = remember{ mutableStateOf(true) },
-    onCellClicked: (Players) -> Unit,
+    onCellClicked: () -> Unit,
 ){
 
     val animationSpec: AnimationSpec<Float> = tween(durationMillis = 400, easing = FastOutSlowInEasing)
@@ -93,7 +92,7 @@ fun TicTacToeScreenContent(
             Button(
                 modifier = Modifier.size(60.dp,30.dp),
                 contentPadding = PaddingValues(6.dp),
-                onClick = { onBackClicked },
+                onClick = onBackClicked,
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onSecondary )
             ) {
                 Icon(
@@ -184,7 +183,7 @@ fun TicTacToeScreenContent(
                                 Text(
                                     text = cellValue,
                                     style = MaterialTheme.typography.displayLarge,
-                                    color = if (playerColor.value) PlayerOrange else PlayerBlue
+                                    color = if (cellValue == "O") PlayerOrange else PlayerBlue
                                 )
                             }
                         }

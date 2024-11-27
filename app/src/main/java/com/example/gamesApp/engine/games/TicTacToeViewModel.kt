@@ -6,40 +6,44 @@ import com.example.gamesApp.ui.destinations.TicTacToeScreenDestination
 import com.example.gamesApp.ui.theme.PlayerBlue
 import com.example.gamesApp.ui.theme.PlayerOrange
 
-
 class TicTacToeViewModel : GameViewModel() {
     override val name: String = "Tic Tac Toe"
     override val imageId: Int = R.drawable.ic_menu_board
     override val destination: TicTacToeScreenDestination = TicTacToeScreenDestination
 
-     open class Players {
-        val x: X = X()
-        val o: O = O()
+    private val gameState = GameState()
+
+     data class Player (
+         val name: String,
+         val color: Color,
+         var board: Int
+     )
+
+    enum class Turn {
+        X,
+        O
     }
 
-    class X : Players() {
-        val name: String = "X"
-        val color: Color = PlayerBlue
-        var board: Int = 0b000000000
+    class GameState {
+        val x = Player(
+            name = "X",
+            color = PlayerBlue,
+            board = 0b000000000
+        )
+        val o = Player(
+            name = "O",
+            color = PlayerOrange,
+            board = 0b000000000
+        )
+        var playerTurn: Turn = Turn.O
     }
 
-     class O : Players() {
-        val name: String = "O"
-        val color: Color = PlayerOrange
-        var board: Int = 0b000000000
+    private fun switchTurn() {
+        gameState.playerTurn = when(gameState.playerTurn) {
+            Turn.O ->  Turn.X
+            Turn.X ->  Turn.O
+        }
     }
-
-//    class PlayerTurn(var players: Players) {
-//        var value: Players = players.x
-//
-//        fun toggle() {
-//            when (this.value) {
-//                is X -> this.value = this.players.o
-//                is O -> this.value = this.players.x
-//            }
-//
-//        }
-//    }
 
     private val winningCombinations = listOf(
         0b111000000,
@@ -52,32 +56,32 @@ class TicTacToeViewModel : GameViewModel() {
         0b001010100
     )
 
-    private fun checkWin(players: Players): String {
-        return if (players.x.board in winningCombinations) players.x.name
-        else if (players.o.board in winningCombinations) players.o.name
+    private fun checkWin(): String {
+        return if (gameState.x.board in winningCombinations) gameState.x.name
+        else if (gameState.o.board in winningCombinations) gameState.o.name
         else ""
     }
 
-    fun getCellValue(players: Players, cellIndex: Int): String {
+    fun getCellValue(cellIndex: Int): String {
         return when {
-            players.x.board and cellIndex == 1 -> "X"
-            players.o.board and cellIndex == 1 -> "O"
+            gameState.x.board and cellIndex == 1 -> "X"
+            gameState.o.board and cellIndex == 1 -> "O"
             else -> ""
         }
     }
 
-//    //index should be in bit form
-//    fun tilePressed(index: Int, players: Players){
-//        when (PlayerTurn(players = players).value) {
-//            players.x -> {
-//                players.x.board = index or players.x.board
-//                PlayerTurn.toggle()
-//            }
-//            players.o -> {
-//                players.o.board = index or players.o.board
-//                PlayerTurn.toggle()
-//            }
-//        }
-//        checkWin(players = players)
-//    }
- }
+    //index should be in bit form
+    fun tilePressed(index: Int){
+        when (gameState.playerTurn) {
+            Turn.X -> {
+                gameState.x.board = index or gameState.x.board
+                switchTurn()
+            }
+            Turn.O -> {
+                gameState.o.board = index or gameState.o.board
+                switchTurn()
+            }
+        }
+        checkWin()
+    }
+}
