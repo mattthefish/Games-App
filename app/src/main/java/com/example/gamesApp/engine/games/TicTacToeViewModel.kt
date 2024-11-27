@@ -11,12 +11,11 @@ class TicTacToeViewModel : GameViewModel() {
     override val imageId: Int = R.drawable.ic_menu_board
     override val destination: TicTacToeScreenDestination = TicTacToeScreenDestination
 
-    private val gameState = GameState()
+    val gameState = GameState()
 
      data class Player (
          val name: String,
          val color: Color,
-         var board: Int
      )
 
     enum class Turn {
@@ -25,17 +24,17 @@ class TicTacToeViewModel : GameViewModel() {
     }
 
     class GameState {
+        var playerTurn: Turn = Turn.O
+        var board: MutableList<Player?> = mutableListOf(null, null, null, null, null, null, null, null, null)
+
         val x = Player(
             name = "X",
             color = PlayerBlue,
-            board = 0b000000000
         )
         val o = Player(
             name = "O",
             color = PlayerOrange,
-            board = 0b000000000
         )
-        var playerTurn: Turn = Turn.O
     }
 
     private fun switchTurn() {
@@ -46,39 +45,41 @@ class TicTacToeViewModel : GameViewModel() {
     }
 
     private val winningCombinations = listOf(
-        0b111000000,
-        0b000111000,
-        0b000000111,
-        0b100100100,
-        0b010010010,
-        0b001001001,
-        0b100010001,
-        0b001010100
+        listOf(0, 1, 2),
+        listOf(3, 4, 5),
+        listOf(6, 7, 8),
+        listOf(0, 3, 6),
+        listOf(1, 4, 7),
+        listOf(2, 5, 8),
+        listOf(0, 4, 8),
+        listOf(2, 4, 6)
     )
 
-    private fun checkWin(): String {
-        return if (gameState.x.board in winningCombinations) gameState.x.name
-        else if (gameState.o.board in winningCombinations) gameState.o.name
-        else ""
+    private fun checkWin(): Player? {
+        for(combination in winningCombinations) {
+            val (a, b, c) = combination
+            val board = gameState.board
+            board[a].let {
+                if (board[a] == board[b] && board[b] == board[c]) {
+                    return board[a]
+                }
+            }
+        }
+        return null
     }
 
     fun getCellValue(cellIndex: Int): String {
-        return when {
-            gameState.x.board and cellIndex == 1 -> "X"
-            gameState.o.board and cellIndex == 1 -> "O"
-            else -> ""
-        }
+        return gameState.board[cellIndex]?.name ?: ""
     }
 
-    //index should be in bit form
     fun tilePressed(index: Int){
         when (gameState.playerTurn) {
             Turn.X -> {
-                gameState.x.board = index or gameState.x.board
+                gameState.board[index] = gameState.x
                 switchTurn()
             }
             Turn.O -> {
-                gameState.o.board = index or gameState.o.board
+                gameState.board[index] = gameState.o
                 switchTurn()
             }
         }

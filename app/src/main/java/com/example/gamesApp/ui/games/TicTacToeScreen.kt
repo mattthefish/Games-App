@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gamesApp.R
 import com.example.gamesApp.engine.games.TicTacToeViewModel
+import com.example.gamesApp.engine.games.TicTacToeViewModel.GameState
 import com.example.gamesApp.ui.theme.PlayerBlue
 import com.example.gamesApp.ui.theme.PlayerOrange
 import com.ramcosta.composedestinations.annotation.Destination
@@ -51,10 +52,12 @@ fun TicTacToeScreen(
     navigator: DestinationsNavigator
 ){
     val viewModel = viewModel<TicTacToeViewModel>()
+    val state = viewModel.gameState
 
     TicTacToeScreenContent(
         onBackClicked = { navigator.navigateUp() },
-        onCellClicked = { }, //TODO dynamic
+        onCellClicked = { index -> viewModel.tilePressed(index) },
+        state = state
     )
 }
 
@@ -62,9 +65,9 @@ fun TicTacToeScreen(
 fun TicTacToeScreenContent(
     onBackClicked: () -> Unit,
     playerColor: MutableState<Boolean> = remember{ mutableStateOf(true) },
-    onCellClicked: () -> Unit,
+    onCellClicked: (Int) -> Unit,
+    state: GameState
 ){
-
     val animationSpec: AnimationSpec<Float> = tween(durationMillis = 400, easing = FastOutSlowInEasing)
 
     val startWeight by animateFloatAsState(
@@ -144,8 +147,6 @@ fun TicTacToeScreenContent(
                 Spacer(modifier = Modifier.weight(endWeight))
             }
 
-
-
             Column(
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.secondary),
@@ -156,7 +157,7 @@ fun TicTacToeScreenContent(
                     Row {
                         (0 until 3).forEach { col ->
                             val cellIndex = row * 3 + col
-                            val cellValue = "X"
+                            val cellValue = state.board[cellIndex]
 
                             Box(
                                 modifier = Modifier
@@ -166,25 +167,19 @@ fun TicTacToeScreenContent(
                                         MaterialTheme.colorScheme.background,
                                         shape = RoundedCornerShape(8.dp)
                                     )
-                                    .clickable {
-//                                        if (cellValue.isEmpty()) {
-//                                            when (/*current player*/) {
-//                                                X -> {
-//                                                    //place piece and change turn
-//                                                }
-//                                                O -> {
-//                                                    //place piece and change turn
-//                                                }
-//                                            }
-//                                        }
-                                    },
+                                    .clickable( //TODO add conditional
+                                        onClick = { onCellClicked(cellIndex) }
+                                    ),
+
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(
-                                    text = cellValue,
-                                    style = MaterialTheme.typography.displayLarge,
-                                    color = if (cellValue == "O") PlayerOrange else PlayerBlue
-                                )
+                                cellValue?.let {
+                                    Text(
+                                        text = cellValue.name,
+                                        style = MaterialTheme.typography.displayLarge,
+                                        color = cellValue.color
+                                    )
+                                }
                             }
                         }
                     }
@@ -230,7 +225,7 @@ fun TicTacToeScreenBluePreview() {
     TicTacToeScreenContent(
         onBackClicked = {},
         onCellClicked = {},
-//        playerColor = true
+        state = GameState()
     )
 }
 
@@ -242,6 +237,6 @@ fun TicTacToeScreenOrangePreview() {
     TicTacToeScreenContent(
         onBackClicked = {},
         onCellClicked = {},
-//        playerColor = false
+        state = GameState()
     )
 }
