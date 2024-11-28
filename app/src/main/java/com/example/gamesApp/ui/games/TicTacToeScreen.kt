@@ -42,6 +42,7 @@ import com.example.gamesApp.engine.games.TicTacToeViewModel
 import com.example.gamesApp.engine.games.TicTacToeViewModel.GameState
 import com.example.gamesApp.ui.theme.PlayerBlue
 import com.example.gamesApp.ui.theme.PlayerOrange
+import com.example.gamesApp.ui.utils.conditional
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.delay
@@ -167,8 +168,13 @@ fun TicTacToeScreenContent(
                                         MaterialTheme.colorScheme.background,
                                         shape = RoundedCornerShape(8.dp)
                                     )
-                                    .clickable( //TODO add conditional
-                                        onClick = { onCellClicked(cellIndex) }
+                                    .conditional(
+                                        predicate = (cellValue == null),
+                                        positive = {
+                                            clickable(
+                                                onClick = { onCellClicked(cellIndex) }
+                                            )
+                                        }
                                     ),
 
                                 contentAlignment = Alignment.Center
