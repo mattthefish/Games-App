@@ -5,13 +5,16 @@ import com.example.gamesApp.R
 import com.example.gamesApp.ui.destinations.TicTacToeScreenDestination
 import com.example.gamesApp.ui.theme.PlayerBlue
 import com.example.gamesApp.ui.theme.PlayerOrange
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class TicTacToeViewModel : GameViewModel() {
     override val name: String = "Tic Tac Toe"
     override val imageId: Int = R.drawable.ic_menu_board
     override val destination: TicTacToeScreenDestination = TicTacToeScreenDestination
 
-    val gameState = GameState()
+    private val internalState = MutableStateFlow(GameState())
+    val state: StateFlow<GameState> = internalState
 
      data class Player (
          val name: String,
@@ -23,25 +26,13 @@ class TicTacToeViewModel : GameViewModel() {
         O
     }
 
-    class GameState {
-        var playerTurn: Turn = Turn.O
-        var board: MutableList<Player?> = mutableListOf(null, null, null, null, null, null, null, null, null)
-
-        val x = Player(
-            name = "X",
-            color = PlayerBlue,
-        )
-        val o = Player(
-            name = "O",
-            color = PlayerOrange,
-        )
-    }
-
     private fun switchTurn() {
-        gameState.playerTurn = when(gameState.playerTurn) {
-            Turn.O ->  Turn.X
-            Turn.X ->  Turn.O
-        }
+        internalState.value = state.value.copy(
+            playerTurn = when(state.value.playerTurn) {
+                Turn.O ->  Turn.X
+                Turn.X ->  Turn.O
+            }
+        )
     }
 
     private val winningCombinations = listOf(
@@ -58,7 +49,7 @@ class TicTacToeViewModel : GameViewModel() {
     private fun checkWin(): Player? {
         for(combination in winningCombinations) {
             val (a, b, c) = combination
-            val board = gameState.board
+            val board = state.value.board
             board[a].let {
                 if (board[a] == board[b] && board[b] == board[c]) {
                     return board[a]
@@ -68,21 +59,29 @@ class TicTacToeViewModel : GameViewModel() {
         return null
     }
 
-    fun getCellValue(cellIndex: Int): String {
-        return gameState.board[cellIndex]?.name ?: ""
+    fun tilePressed(index: Int){
+        if (state.value.board[index] == null) {
+            internalState.value = state.value.copy(
+                board = state.value.board.toMutableList().apply {
+                    this[index] = if (state.value.playerTurn == Turn.X) state.value.x else state.value.o
+                }
+            )
+            switchTurn()
+            checkWin()
+        }
     }
 
-    fun tilePressed(index: Int){
-        when (gameState.playerTurn) {
-            Turn.X -> {
-                gameState.board[index] = gameState.x
-                switchTurn()
-            }
-            Turn.O -> {
-                gameState.board[index] = gameState.o
-                switchTurn()
-            }
-        }
-        checkWin()
+    data class GameState(
+        val playerTurn: Turn = Turn.O,
+        val board: List<Player?> = MutableList(9) {null}
+    ) {
+        val x = Player(
+            name = "X",
+            color = PlayerBlue,
+        )
+        val o = Player(
+            name = "O",
+            color = PlayerOrange,
+        )
     }
 }
