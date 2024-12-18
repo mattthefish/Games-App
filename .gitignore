@@ -1,0 +1,35 @@
+/.gradle/
+
+# Generated files
+bin/
+gen/
+
+# Gradle files
+.gradle/
+/gradle/
+
+#built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+!/build/
+/app/build/
+
+# Android Studio
+*.iml
+/.idea/
+
+# Gradle
+.idea/**/gradle.xml
+.idea/**/libraries
+
+/src/main/java/com/example/gamesApp/engine/games/TicTacToeViewModel.kt
+!/build/
+
+
