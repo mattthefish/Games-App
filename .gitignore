@@ -1,11 +1,11 @@
-/.gradle/
+
 
 # Generated files
-bin/
-gen/
+/bin/
+/gen/
 
 # Gradle files
-.gradle/
+/.gradle/
 /gradle/
 
 #built application files
@@ -29,7 +29,4 @@ gen/
 .idea/**/gradle.xml
 .idea/**/libraries
 
-/src/main/java/com/example/gamesApp/engine/games/TicTacToeViewModel.kt
-!/build/
-
-
+/app/proguard-rules.pro
