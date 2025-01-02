@@ -46,20 +46,26 @@ class TicTacToeViewModel : GameViewModel() {
         listOf(2, 4, 6)
     )
 
-    private fun checkWin(): Player? {
+    private fun checkWin(): String? {
         for(combination in winningCombinations) {
             val (a, b, c) = combination
             val board = state.value.board
             board[a].let {
-                if (board[a] == board[b] && board[b] == board[c]) {
-                    return board[a]
+                if (board[a]?.name == board[b]?.name && board[b]?.name == board[c]?.name) {
+                    return board[a]?.name
                 }
             }
         }
         return null
     }
 
+    fun resetBoard(){
+        internalState.value = GameState()
+    }
+
     fun tilePressed(index: Int){
+        if (!state.value.board.contains(null)) internalState.value = state.value.copy(isGameOver = true)
+
         if (state.value.board[index] == null) {
             internalState.value = state.value.copy(
                 board = state.value.board.toMutableList().apply {
@@ -67,18 +73,24 @@ class TicTacToeViewModel : GameViewModel() {
                 }
             )
             switchTurn()
-            when (checkWin()) {
-                state.value.x -> {}
-                state.value.o -> {}
-                null -> {}
-
+            val winner = checkWin()
+            when (winner) {
+                state.value.x.name  ->
+                    { internalState.value = state.value.copy(isGameOver = true, winner = state.value.x) }
+                state.value.o.name  ->
+                    { internalState.value = state.value.copy(isGameOver = true, winner = state.value.o) }
+                null -> if (state.value.board.contains(null))
+                    {/* do nothing */}
+                    else { internalState.value = state.value.copy(isGameOver = true)}
             }
         }
     }
 
     data class GameState(
         val playerTurn: Turn = Turn.O,
-        val board: List<Player?> = MutableList(9) {null}
+        val board: List<Player?> = MutableList(9) {null},
+        val isGameOver: Boolean = false,
+        val winner: Player? = null
     ) {
         val x = Player(
             name = "X",

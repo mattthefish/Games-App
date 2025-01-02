@@ -1,5 +1,6 @@
 package com.example.gamesApp.ui.games
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -28,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,6 +45,17 @@ import com.example.gamesApp.ui.utils.conditional
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
+data class Interactions(
+    var onBackClicked: () -> Unit,
+    var onCellClicked: (Int) -> Unit,
+    var onReplayClicked: () -> Unit,
+    var onExitClicked: () -> Unit,
+) {
+    companion object {
+        val PREVIEW = Interactions({},{},{},{})
+    }
+}
+
 @Destination
 @Composable
 fun TicTacToeScreen(
@@ -51,25 +64,31 @@ fun TicTacToeScreen(
     val viewModel = viewModel<TicTacToeViewModel>()
     val state by viewModel.state.collectAsStateRepeatedly()
 
-    TicTacToeScreenContent(
+    val interactions = Interactions(
         onBackClicked = { navigator.navigateUp() },
         onCellClicked = { index -> viewModel.tilePressed(index) },
+        onExitClicked = { navigator.navigateUp() },
+        onReplayClicked = { viewModel.resetBoard() },
+    )
+
+    TicTacToeScreenContent(
+        interactions = interactions,
         state = state
     )
 }
 
 @Composable
 fun TicTacToeScreenContent(
-    onBackClicked: () -> Unit,
-    onCellClicked: (Int) -> Unit,
+    interactions: Interactions,
     state: GameState
 ){
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(if (state.playerTurn == Turn.O) PlayerOrange else PlayerBlue)
+            .background(if (state.playerTurn == Turn.O) PlayerOrange else PlayerBlue),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-       TopNavBar(onBackClicked = onBackClicked)
+       TopNavBar(onBackClicked = interactions.onBackClicked)
 
         Column(
             modifier = Modifier.padding(32.dp),
@@ -80,7 +99,15 @@ fun TicTacToeScreenContent(
             )
             TicTacToeGrid(
                 state = state,
-                onCellClicked = onCellClicked
+                onCellClicked = interactions.onCellClicked
+            )
+        }
+
+        AnimatedVisibility(visible = (state.isGameOver)) {
+            GameEnd(
+                state = state,
+                onExitClicked = interactions.onExitClicked,
+                onReplayClicked = interactions.onReplayClicked
             )
         }
     }
@@ -112,7 +139,7 @@ fun TicTacToeGrid(
                                 shape = RoundedCornerShape(8.dp)
                             )
                             .conditional(
-                                predicate = (cellValue == null),
+                                predicate = (cellValue == null && !state.isGameOver),
                                 positive = {
                                     clickable(
                                         onClick = { onCellClicked(cellIndex) }
@@ -199,6 +226,7 @@ fun TopNavBar(
         Button(
             modifier = Modifier.size(60.dp,30.dp),
             contentPadding = PaddingValues(6.dp),
+            shape = RoundedCornerShape(4.dp),
             onClick = onBackClicked,
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onSecondary )
         ) {
@@ -213,6 +241,60 @@ fun TopNavBar(
     }
 }
 
+@Composable
+fun GameEnd(
+    state: GameState,
+    onReplayClicked: () -> Unit,
+    onExitClicked: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (state.winner != null) {
+            Text(
+                text = "${state.winner?.name} wins",
+                style = MaterialTheme.typography.displayLarge,
+                color = MaterialTheme.colorScheme.onSecondary
+            )
+        } else {
+            Text(
+                text = "Draw",
+                style = MaterialTheme.typography.displayLarge,
+                color = MaterialTheme.colorScheme.onSecondary
+            )
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Button(
+                onClick = { onReplayClicked() },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                shape = RoundedCornerShape(4.dp)
+            ){
+                Text(
+                    text = "Replay",
+                    style = MaterialTheme.typography.displaySmall,
+                    color = MaterialTheme.colorScheme.onSecondary
+                )
+            }
+            Button(
+                onClick = { onExitClicked() },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                shape = RoundedCornerShape(4.dp)
+            ){
+                Text(
+                    text = "Exit",
+                    style = MaterialTheme.typography.displaySmall,
+                    color = MaterialTheme.colorScheme.onSecondary
+                )
+            }
+        }
+    }
+}
+
 //PREVIEWS
 
 @Preview(
@@ -221,8 +303,7 @@ fun TopNavBar(
 @Composable
 fun TicTacToeScreenBluePreview() {
     TicTacToeScreenContent(
-        onBackClicked = {},
-        onCellClicked = {},
+        interactions = Interactions.PREVIEW,
         state = GameState()
     )
 }
@@ -233,8 +314,49 @@ fun TicTacToeScreenBluePreview() {
 @Composable
 fun TicTacToeScreenOrangePreview() {
     TicTacToeScreenContent(
-        onBackClicked = {},
-        onCellClicked = {},
+        interactions = Interactions.PREVIEW,
         state = GameState(playerTurn = Turn.X)
+    )
+}
+
+@Preview(
+    name = "TicTacToe Screen Orange Ended"
+)
+@Composable
+fun TicTacToeScreenOrangeEndedPreview() {
+    TicTacToeScreenContent(
+        interactions = Interactions.PREVIEW,
+        state = GameState(playerTurn = Turn.X,
+            isGameOver = true,
+            winner = TicTacToeViewModel.Player("X", color = Color.Blue)
+        )
+    )
+}
+
+@Preview(
+    name = "TicTacToe Screen Blue Ended"
+)
+@Composable
+fun TicTacToeScreenBlueEndedPreview() {
+    TicTacToeScreenContent(
+        interactions = Interactions.PREVIEW,
+        state = GameState(playerTurn = Turn.O,
+            isGameOver = true,
+            winner = TicTacToeViewModel.Player("O", color = Color.Red)
+        )
+    )
+}
+
+@Preview(
+    name = "TicTacToe Screen Blue Draw"
+)
+@Composable
+fun TicTacToeScreenBlueDrawPreview() {
+    TicTacToeScreenContent(
+        interactions = Interactions.PREVIEW,
+        state = GameState(playerTurn = Turn.O,
+            isGameOver = true,
+            winner = null
+        )
     )
 }
