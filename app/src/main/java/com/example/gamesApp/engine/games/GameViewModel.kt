@@ -11,8 +11,14 @@ abstract class GameViewModel: ViewModel() {
     abstract val destination: DirectionDestination
 }
 
-class GamePreview() : GameViewModel() {
+class TicTacToePreview() : GameViewModel() {
     override val name: String = "Tic Tac Toe"
     override val imageId: Int = R.drawable.ic_launcher_foreground
+    override val destination: DirectionDestination = HomeScreenDestination
+}
+
+class BrickBreakerPreview() : GameViewModel() {
+    override val name: String = "Brick Breaker"
+    override val imageId: Int = R.drawable.ic_brick_breaker
     override val destination: DirectionDestination = HomeScreenDestination
 }

@@ -23,8 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.gamesApp.engine.games.BrickBreakerPreview
 import com.example.gamesApp.engine.games.GameViewModel
-import com.example.gamesApp.engine.games.GamePreview
+import com.example.gamesApp.engine.games.TicTacToePreview
 import com.example.gamesApp.ui.destinations.DirectionDestination
 import com.example.gamesApp.ui.theme.HomeTheme
 import com.ramcosta.composedestinations.annotation.Destination
@@ -60,31 +61,20 @@ fun MenuScreenContent(
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.secondary),
          ) {
-                Text(
-                    modifier = Modifier.padding(vertical = 16.dp, horizontal = 32.dp),
-                    text = "A list of games",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSecondary
-                )
-            }
+
+             Text(
+                 modifier = Modifier.padding(vertical = 16.dp, horizontal = 32.dp),
+                 text = "A list of games",
+                 style = MaterialTheme.typography.titleMedium,
+                 color = MaterialTheme.colorScheme.onSecondary
+             )
+        }
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(count = 2),
             contentPadding = PaddingValues(10.dp)
         ) {
             games.forEach{
-                item{
-                    GameCard(
-                        game = it,
-                        onCardClicked = onCardClicked
-                    )
-                }
-                item{
-                    GameCard(
-                        game = it,
-                        onCardClicked = onCardClicked
-                    )
-                }
                 item{
                     GameCard(
                         game = it,
@@ -135,7 +125,8 @@ fun GameCard(
 fun MenuScreenPreview(){
     MenuScreenContent(
         games = listOf(
-            GamePreview()
+            TicTacToePreview(),
+            BrickBreakerPreview()
         ),
         onCardClicked = {}
     )
@@ -147,7 +138,7 @@ fun MenuScreenPreview(){
 @Composable
 fun CardPreview(){
     GameCard(
-        game = GamePreview(),
+        game = TicTacToePreview(),
         onCardClicked = {}
     )
 }
