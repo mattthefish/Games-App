@@ -61,8 +61,14 @@ fun BrickBreakerScreenContent(
             val parentWidthPx = constraints.maxWidth.toFloat()
             val parentHeightPx = constraints.maxHeight.toFloat()
 
-            val startX = parentWidthPx / 2  - state.launchPad.width / 2
-            val startY = parentHeightPx - 200f
+            val launchPadStartX = parentWidthPx / 2  - state.launchPad.width / 2
+            val launchPadStartY = parentHeightPx - 200f
+
+            var launchPadOffset by remember {
+                mutableStateOf(
+                    Offset(launchPadStartX, launchPadStartY)
+                )
+            }
 
             val ballStartX = parentWidthPx / 2  - state.launchPad.width / 2
             val ballStartY = parentHeightPx - 200f
