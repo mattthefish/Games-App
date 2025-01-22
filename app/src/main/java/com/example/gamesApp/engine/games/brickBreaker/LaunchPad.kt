@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 class LaunchPad {
     val color: Color = Color.White
-    val width: Float = 400f
-    val height: Float = 30f
+    val width: Float = 200f
+    val height: Float = 150f
 
 }

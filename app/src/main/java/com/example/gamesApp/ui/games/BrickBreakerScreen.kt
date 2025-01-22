@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,6 +28,7 @@ import com.example.gamesApp.ui.utils.collectAsStateRepeatedly
 import com.example.gamesApp.ui.utils.toDp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.delay
 
 @Destination
 @Composable
@@ -61,11 +64,42 @@ fun BrickBreakerScreenContent(
             val startX = parentWidthPx / 2  - state.launchPad.width / 2
             val startY = parentHeightPx - 200f
 
-            var offset by remember {
+            val ballStartX = parentWidthPx / 2  - state.launchPad.width / 2
+            val ballStartY = parentHeightPx - 200f
+
+            var ballOffset by remember {
                 mutableStateOf(
-                    Offset(startX, startY)
+                    Offset(ballStartX, ballStartY)
                 )
             }
+
+            LaunchedEffect(Unit) {
+                while (true) {
+                    ballOffset = Offset(
+                        ballOffset.x + state.ball.velocity.x,
+                        ballOffset.y + state.ball.velocity.y
+                    )
+                    state.ball.checkWallCollision(parentWidthPx, parentHeightPx, ballOffset)
+                    state.ball.checkLaunchPadCollision(
+                        ballOffset = ballOffset,
+                        launchPad = state.launchPad,
+                        launchPadOffset = launchPadOffset
+                    )
+                    delay(10L)
+                }
+            }
+
+            Surface(
+                modifier = Modifier
+                    .size(state.ball.diameter.toDp())
+                    .offset{
+                        ballOffset.round()
+                    }
+                ,
+                shape = CircleShape,
+                color = Color.White,
+                content = {  }
+            )
 
             Surface(
                 modifier = Modifier
@@ -74,26 +108,24 @@ fun BrickBreakerScreenContent(
                         state.launchPad.height.toDp()
                     )
                     .offset {
-                        offset.round()
+                        launchPadOffset.round()
                     }
                     .pointerInput(Unit) {
                         detectTransformGestures { _, pan, _, _ ->
-                            val newOffsetX = offset + pan
-                            offset = Offset(
+                            val newOffsetX = launchPadOffset + pan
+                            launchPadOffset = Offset(
                                 x = newOffsetX.x.coerceIn(
                                     0f,
                                     parentWidthPx - state.launchPad.width
                                 ),
-                                y = startY,
+                                y = launchPadStartY,
                             )
                         }
                     },
                 shape = RectangleShape,
                 color = Color.White,
-            ) {
-                // Content of the draggable point
-            }
+                content = {  }
+            )
         }
     }
-
 }
