@@ -18,9 +18,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.round
 import com.example.gamesApp.engine.games.brickBreaker.BrickBreakerViewModel
 import com.example.gamesApp.engine.games.brickBreaker.BrickBreakerViewModel.GameState
@@ -64,6 +67,8 @@ fun BrickBreakerScreenContent(
             val launchPadStartX = parentWidthPx / 2  - state.launchPad.width / 2
             val launchPadStartY = parentHeightPx - 200f
 
+            val launchPadBounds = remember { mutableStateOf(Rect.Zero) }
+
             var launchPadOffset by remember {
                 mutableStateOf(
                     Offset(launchPadStartX, launchPadStartY)
@@ -88,8 +93,8 @@ fun BrickBreakerScreenContent(
                     state.ball.checkWallCollision(parentWidthPx, parentHeightPx, ballOffset)
                     state.ball.checkLaunchPadCollision(
                         ballOffset = ballOffset,
-                        launchPad = state.launchPad,
-                        launchPadOffset = launchPadOffset
+                        ballDiameter = state.ball.diameter,
+                        launchPadBounds = launchPadBounds
                     )
                     delay(10L)
                 }
@@ -118,15 +123,18 @@ fun BrickBreakerScreenContent(
                     }
                     .pointerInput(Unit) {
                         detectTransformGestures { _, pan, _, _ ->
-                            val newOffsetX = launchPadOffset + pan
+                            val newOffset = launchPadOffset + pan
                             launchPadOffset = Offset(
-                                x = newOffsetX.x.coerceIn(
+                                x = newOffset.x.coerceIn(
                                     0f,
                                     parentWidthPx - state.launchPad.width
                                 ),
                                 y = launchPadStartY,
                             )
                         }
+                    }
+                    .onGloballyPositioned { coordinates ->
+                        launchPadBounds.value = coordinates.boundsInRoot()
                     },
                 shape = RectangleShape,
                 color = Color.White,

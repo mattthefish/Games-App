@@ -11,3 +11,15 @@ fun Float.toDp(): Dp {
         this@toDp.toDp()
     }
 }
+
+fun Float.isBetween(
+    upper: Float,
+    lower: Float,
+    inclusive: Boolean = true,
+): Boolean {
+    return if (inclusive){
+        this in lower..upper
+    } else {
+        this > lower && this < upper
+    }
+}
