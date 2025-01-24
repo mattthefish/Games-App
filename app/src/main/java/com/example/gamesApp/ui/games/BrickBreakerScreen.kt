@@ -84,6 +84,7 @@ fun BrickBreakerScreenContent(
                 )
             }
 
+            //Change location and check collisions
             LaunchedEffect(Unit) {
                 while (true) {
                     ballOffset = Offset(

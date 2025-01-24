@@ -52,46 +52,50 @@ class Ball {
         val ballTop = ballY - ballRadius
         val ballBottom = ballY + ballRadius
 
-        val rectLeft = launchPadBounds.value.left
-        val rectRight = launchPadBounds.value.right
-        val rectTop = launchPadBounds.value.top
-        val rectBottom = launchPadBounds.value.bottom
+        val launchLeft = launchPadBounds.value.left
+        val launchRight = launchPadBounds.value.right
+        val launchTop = launchPadBounds.value.top
+        val launchBottom = launchPadBounds.value.bottom
 
-        val ballIntersectsRectHorizontally = ballRight > rectLeft && ballLeft < rectRight
-        val ballIntersectsRectVertically = ballBottom > rectTop && ballTop < rectBottom
+        val ballIntersectsRectHorizontally = ballRight > launchLeft && ballLeft < launchRight
+        val ballIntersectsRectVertically = ballBottom > launchTop && ballTop < launchBottom
 
-        return if (ballIntersectsRectHorizontally && ballBottom == rectTop && velocity.y > 0) {
+        return if (ballIntersectsRectHorizontally &&
+            ballBottom <= launchPadBounds.value.center.y &&
+            ballBottom >= launchTop &&
+            velocity.y > 0
+        ) {
             // Ball hits the top of the rectangle
             Log.d("","BALL HIT TOP")
             this.velocity = Velocity(
                 this.velocity.x,
                 -this.velocity.y
             )
-            Offset(ballOffset.x,rectTop - ballDiameter)
+            Offset(ballOffset.x,launchTop - ballDiameter)
         } else if (ballIntersectsRectVertically &&
             launchPadBounds.value.center.x > ballRight &&
-            ballRight > rectLeft  &&
+            ballRight > launchLeft  &&
             velocity.x > 0
-            ) {
+        ) {
             // Ball hits the left side of the rectangle
             Log.d("","BALL HIT LEFT SIDE")
             this.velocity = Velocity(
                 -this.velocity.x,
                 this.velocity.y
             )
-            Offset(rectLeft - ballDiameter - 1, ballOffset.y)
+            Offset(launchLeft - ballDiameter - 1, ballOffset.y)
         } else if (ballIntersectsRectVertically &&
             launchPadBounds.value.center.x < ballLeft &&
-            ballLeft < rectRight &&
+            ballLeft < launchRight &&
             velocity.x < 0
-            ) {
+        ) {
             // Ball hits the right side of the rectangle
             Log.d("","BALL HIT RIGHT SIDE")
             this.velocity = Velocity(
                 -this.velocity.x,
                 this.velocity.y
             )
-            Offset(rectRight + 1f, ballOffset.y)
+            Offset(launchRight + 1f, ballOffset.y)
         } else Offset(ballOffset.x, ballOffset.y)
     }
 }
