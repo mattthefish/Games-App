@@ -84,6 +84,27 @@ fun BrickBreakerScreenContent(
                 )
             }
 
+            state.remainingBricks.forEach {
+                if(it.bounds == Rect.Zero) {
+                    Surface(
+                        modifier = Modifier
+                            .size(
+                                it.width.toDp(),
+                                it.height.toDp()
+                            )
+                            .offset {
+                                it.offset.round()
+                            }
+                            .onGloballyPositioned { coordinates ->
+                                it.bounds = coordinates.boundsInRoot()
+                            },
+                        shape = RectangleShape,
+                        color = Color.White,
+                        content = { }
+                    )
+                }
+            }
+
             //Change location and check collisions
             LaunchedEffect(Unit) {
                 while (true) {
@@ -92,11 +113,20 @@ fun BrickBreakerScreenContent(
                         ballOffset.y + state.ball.velocity.y
                     )
                     state.ball.checkWallCollision(parentWidthPx, parentHeightPx, ballOffset)
-                    state.ball.checkLaunchPadCollision(
+                    state.ball.checkRectangleCollision(
                         ballOffset = ballOffset,
                         ballDiameter = state.ball.diameter,
-                        launchPadBounds = launchPadBounds
+                        rectBounds = launchPadBounds.value,
+                        isBrick = false
                     )
+                    state.remainingBricks.forEach {
+                        state.ball.checkRectangleCollision(
+                            ballOffset = ballOffset,
+                            ballDiameter = state.ball.diameter,
+                            rectBounds = it.bounds,
+                            isBrick = true
+                        )
+                    }
                     delay(10L)
                 }
             }
@@ -104,7 +134,7 @@ fun BrickBreakerScreenContent(
             Surface(
                 modifier = Modifier
                     .size(state.ball.diameter.toDp())
-                    .offset{
+                    .offset {
                         ballOffset.round()
                     }
                 ,

@@ -1,6 +1,6 @@
 package com.example.gamesApp.engine.games.brickBreaker
 
-import android.view.MotionEvent
+import androidx.compose.ui.geometry.Offset
 import com.example.gamesApp.R
 import com.example.gamesApp.engine.games.GameViewModel
 import com.example.gamesApp.ui.destinations.BrickBreakerScreenDestination
@@ -17,12 +17,10 @@ class BrickBreakerViewModel: GameViewModel() {
 
     data class GameState(
         var paused: Boolean = false,
-        var remainingBricks: List<Brick> = listOf(Brick(),Brick())
+        var remainingBricks: List<Brick> = listOf(Brick(), Brick(Offset(600f, 600f)), Brick(Offset(400f, 1500f)))
     ) {
         val launchPad = LaunchPad()
         val ball = Ball()
-
     }
-
 }
 
