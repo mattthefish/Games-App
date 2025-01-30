@@ -76,7 +76,7 @@ fun BrickBreakerScreenContent(
             }
 
             val ballStartX = parentWidthPx / 2  - state.launchPad.width / 2
-            val ballStartY = parentHeightPx - 200f
+            val ballStartY = parentHeightPx - 500f
 
             var ballOffset by remember {
                 mutableStateOf(
@@ -113,12 +113,23 @@ fun BrickBreakerScreenContent(
                         ballOffset.y + state.ball.velocity.y
                     )
                     state.ball.checkWallCollision(parentWidthPx, parentHeightPx, ballOffset)
-                    state.ball.checkRectangleCollision(
+
+                    // check launch pad collision
+                    val newOffset = state.ball.checkRectangleCollision(
                         ballOffset = ballOffset,
                         ballDiameter = state.ball.diameter,
                         rectBounds = launchPadBounds.value,
                         isBrick = false
                     )
+
+                    // ball rebounds at varying angle
+                    if(newOffset != null) {
+                        state.ball.angledVelocity(
+                            ballOffset = ballOffset,
+                            launchPadOffset = launchPadOffset,
+                            launchPadWidth = state.launchPad.width
+                        )
+                    }
                     state.remainingBricks.forEach {
                         state.ball.checkRectangleCollision(
                             ballOffset = ballOffset,

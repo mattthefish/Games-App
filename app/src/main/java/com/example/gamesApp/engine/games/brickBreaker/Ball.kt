@@ -1,16 +1,45 @@
 package com.example.gamesApp.engine.games.brickBreaker
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Velocity
+import com.example.gamesApp.ui.utils.isBetween
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 class Ball {
     val color: Color = Color.White
     val diameter: Float = 100f
 
-    var velocity: Velocity = Velocity(10f, 30f)
+    var velocity: Velocity = Velocity(0f, -5f)
+
+
+    fun angledVelocity(
+        ballOffset: Offset,
+        launchPadOffset: Offset,
+        launchPadWidth: Float
+    ) {
+        val ballCenter = ballOffset.x + diameter/2
+        val launchPadCenter = launchPadOffset.x + launchPadWidth/2
+
+        if (ballCenter.isBetween(launchPadOffset.x + launchPadWidth, launchPadOffset.x)) {
+            val relativeImpactX = (ballCenter - launchPadCenter) / (launchPadWidth / 2)
+
+            val clampedImpactX = relativeImpactX.coerceIn(-1f, 1f)
+
+            val exitAngle = Math.PI / 4 + (clampedImpactX + 1) * (Math.PI / 4)
+
+            // Compute new velocity components
+            val speed = sqrt(velocity.x.pow(2) + velocity.y.pow(2)) * -1f
+            val vx = speed * cos(exitAngle).toFloat()
+            val vy = speed * sin(exitAngle).toFloat()
+
+            velocity = Velocity(vx, vy)
+        }
+    }
 
     //TODO: bottom currently rebounds balls - not future behaviour
     fun checkWallCollision(
@@ -47,13 +76,13 @@ class Ball {
             return ballOffset
         }
     }
-
+    // returns null if no collision detected
     fun checkRectangleCollision(
         ballOffset: Offset,
         ballDiameter: Float,
         rectBounds: Rect,
         isBrick: Boolean
-    ): Offset {
+    ): Offset? {
         val ballRadius = ballDiameter / 2
         val ballX = ballOffset.x + ballRadius
         val ballY = ballOffset.y + ballRadius
@@ -117,6 +146,6 @@ class Ball {
                 this.velocity.y
             )
             Offset(rectRight + 1f, ballOffset.y)
-        } else Offset(ballOffset.x, ballOffset.y)
+        } else null
     }
 }
