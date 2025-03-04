@@ -33,7 +33,6 @@ fun HomeScreen(
     HomeScreenContent { navigator.navigate(MenuScreenDestination()) }
 }
 
-@SuppressLint("UnrememberedMutableInteractionSource")
 @Composable
 private fun HomeScreenContent(
     onContinueClicked: () -> Unit
@@ -67,7 +66,6 @@ private fun HomeScreenContent(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.secondary
                 ),
-                interactionSource = MutableInteractionSource()
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.right_arrow),
@@ -81,7 +79,6 @@ private fun HomeScreenContent(
                     .padding(32.dp),
                 text = "Made by Matt",
                 style = MaterialTheme.typography.bodyMedium
-
             )
         }
     }

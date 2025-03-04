@@ -79,11 +79,10 @@ class Ball {
     // returns null if no collision detected
     fun checkRectangleCollision(
         ballOffset: Offset,
-        ballDiameter: Float,
         rectBounds: Rect,
         isBrick: Boolean
     ): Offset? {
-        val ballRadius = ballDiameter / 2
+        val ballRadius = this.diameter / 2
         val ballX = ballOffset.x + ballRadius
         val ballY = ballOffset.y + ballRadius
 
@@ -111,7 +110,7 @@ class Ball {
                 this.velocity.x,
                 -this.velocity.y
             )
-            Offset(ballOffset.x, rectTop - ballDiameter)
+            Offset(ballOffset.x, rectTop - this.diameter)
         } else if (ballIntersectsRectHorizontally &&
             ballTop >= rectBounds.center.y &&
             ballTop <= rectBottom &&
@@ -134,7 +133,7 @@ class Ball {
                 -this.velocity.x,
                 this.velocity.y
             )
-            Offset(rectLeft - ballDiameter - 1, ballOffset.y)
+            Offset(rectLeft - this.diameter - 1, ballOffset.y)
         } else if (ballIntersectsRectVertically &&
             rectBounds.center.x < ballLeft &&
             ballLeft < rectRight &&
