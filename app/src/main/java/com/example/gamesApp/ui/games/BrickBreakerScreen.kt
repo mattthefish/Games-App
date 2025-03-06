@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,12 +28,12 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.round
 import com.example.gamesApp.engine.games.brickBreaker.BrickBreakerViewModel
 import com.example.gamesApp.engine.games.brickBreaker.BrickBreakerViewModel.GameState
+import com.example.gamesApp.engine.games.brickBreaker.LaunchPad
 import com.example.gamesApp.ui.utils.collectAsStateRepeatedly
 import com.example.gamesApp.ui.utils.toDp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.delay
-import java.util.UUID
 
 @Destination
 @Composable
@@ -45,7 +46,8 @@ fun BrickBreakerScreen(
     BrickBreakerScreenContent(
         state = state,
         onBackClicked = { navigator.navigateUp() },
-        onBrickDestroyed = { viewModel.destroyBrick(it)}
+        onUpdate = { offset, bounds, x, y -> viewModel.onUpdate(offset, bounds, x, y) },
+        initBallOffset = { x, y -> viewModel.initOffset(x, y)}
     )
 }
 
@@ -53,7 +55,8 @@ fun BrickBreakerScreen(
 fun BrickBreakerScreenContent(
     state: GameState,
     onBackClicked: () -> Unit,
-    onBrickDestroyed: (UUID) -> Unit
+    onUpdate: (Offset, MutableState<Rect>, Float, Float) -> Unit,
+    initBallOffset: (Float, Float) -> Unit
 ) {
 //    GameTopNavBar(onBackClicked = onBackClicked)
 
@@ -79,53 +82,12 @@ fun BrickBreakerScreenContent(
 
         val ballStartX = parentWidthPx / 2  - state.launchPad.width / 2
         val ballStartY = parentHeightPx - 500f
-
-        var ballOffset by remember {
-            mutableStateOf(
-                Offset(ballStartX, ballStartY)
-            )
-        }
+        initBallOffset(ballStartX, ballStartY)
 
         //Change location and check collisions
-        LaunchedEffect(Unit) {
+        LaunchedEffect(Unit){
             while (true) {
-                ballOffset = Offset(
-                    ballOffset.x + state.ball.velocity.x,
-                    ballOffset.y + state.ball.velocity.y
-                )
-                state.ball.checkWallCollision(parentWidthPx, parentHeightPx, ballOffset)
-
-                // check launch pad collision
-                val newOffset = state.ball.checkRectangleCollision(
-                    ballOffset = ballOffset,
-                    rectBounds = launchPadBounds.value,
-                    isBrick = false
-                )
-
-                // check launchpad rebound angle
-                if(newOffset != null) {
-                    state.ball.angledVelocity(
-                        ballOffset = ballOffset,
-                        launchPadOffset = launchPadOffset,
-                        launchPadWidth = state.launchPad.width
-                    )
-                }
-
-                // check brick collision
-                state.bricks
-                    .filter { it.id !in state.destroyedBricks }
-                    .forEach {
-                        if(state.ball.checkRectangleCollision(
-                                ballOffset = ballOffset,
-                                rectBounds = it.bounds,
-                                isBrick = true
-                        ) == null) {
-                            // no op
-                        } else { // if collision happens
-                            onBrickDestroyed(it.id)
-                        }
-                    }
-
+                onUpdate(launchPadOffset,launchPadBounds, parentWidthPx, parentHeightPx)
                 delay(10L)
             }
         }
@@ -155,13 +117,12 @@ fun BrickBreakerScreenContent(
              }
          }
 
-
         //draw ball
         Surface(
             modifier = Modifier
                 .size(state.ball.diameter.toDp())
                 .offset {
-                    ballOffset.round()
+                    state.ball.offset.round()
                 }
             ,
             shape = CircleShape,
