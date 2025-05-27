@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -33,7 +34,7 @@ import com.example.gamesApp.engine.games.brickBreaker.BrickBreakerViewModel.Game
 import com.example.gamesApp.ui.utils.toDp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Destination
 @Composable
@@ -42,12 +43,15 @@ fun BrickBreakerScreen(
 ){
     val viewModel = BrickBreakerViewModel()
     val state by viewModel.state.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
 
     BrickBreakerScreenContent(
         state = state,
         onBackClicked = { navigator.navigateUp() },
         onUpdate = { offset, bounds, x, y -> viewModel.onUpdate(offset, bounds, x, y) },
-        initBallOffset = { x, y -> viewModel.setInitOffset(x, y)}
+        initBallOffset = { x, y -> viewModel.setInitOffset(x, y)},
+        gameLoop = { offset, bounds, width, height -> coroutineScope.launch{viewModel.gameLoop(offset,bounds,width,height)} }
+
     )
 }
 
@@ -56,7 +60,8 @@ fun BrickBreakerScreenContent(
     state: GameState,
     onBackClicked: () -> Unit,
     onUpdate: (Offset, MutableState<Rect>, Float, Float) -> Unit,
-    initBallOffset: (Float, Float) -> Unit
+    initBallOffset: (Float, Float) -> Unit,
+    gameLoop: (MutableState<Offset>, MutableState<Rect>, Float, Float) -> Unit,
 ) {
 //    GameTopNavBar(onBackClicked = onBackClicked)
 
@@ -86,10 +91,12 @@ fun BrickBreakerScreenContent(
 
         //Change location and check collisions
         LaunchedEffect(Unit){
-            while (true) {
-                onUpdate(launchPadOffset.value,launchPadBounds, parentWidthPx, parentHeightPx)
-                delay(10L)
-            }
+            gameLoop(
+                launchPadOffset,
+                launchPadBounds,
+                parentWidthPx,
+                parentHeightPx
+            )
         }
 
         key(state) { // Force recomposition when 'state' changes

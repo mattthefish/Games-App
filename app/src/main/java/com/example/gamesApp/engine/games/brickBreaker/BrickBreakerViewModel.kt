@@ -8,6 +8,7 @@ import com.example.gamesApp.R
 import com.example.gamesApp.engine.games.GameViewModel
 import com.example.gamesApp.ui.destinations.BrickBreakerScreenDestination
 import com.example.gamesApp.ui.utils.isBetween
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -262,6 +263,18 @@ class BrickBreakerViewModel: GameViewModel() {
 
         }
         return changed
+    }
+
+    suspend fun gameLoop(
+        launchPadOffset: MutableState<Offset>,
+        launchPadBounds: MutableState<Rect>,
+        parentWidthPx: Float,
+        parentHeightPx: Float
+    ) {
+        while (true) {
+            onUpdate(launchPadOffset.value,launchPadBounds, parentWidthPx, parentHeightPx)
+            delay(10L)
+        }
     }
 
     data class GameState(
